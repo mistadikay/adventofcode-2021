@@ -12,6 +12,7 @@ fn main() {
         .collect();
 
     println!("Answer for part 1 is {}", part1(&numbers));
+    println!("Answer for part 2 is {}", part2(&numbers));
 }
 
 fn part1(numbers: &Vec<i64>) -> i64 {
@@ -27,6 +28,34 @@ fn part1(numbers: &Vec<i64>) -> i64 {
                 count += 1;
             } else {
                 // println!("(decreased)")
+            }
+        }
+    }
+
+    return count;
+}
+
+fn part2(numbers: &Vec<i64>) -> i64 {
+    let mut count = 0;
+
+    for (i, v) in numbers.iter().enumerate() {
+        if i == numbers.len() - 2 {
+            break;
+        }
+
+        let value = v + &numbers[i + 1] + &numbers[i + 2];
+        // print!("{} ", value);
+        if i == 0 {
+            // println!("(N/A - no previous sum)")
+        } else {
+            let prev = &numbers[i - 1] + v + &numbers[i + 1];
+            if value > prev {
+                // println!("(increased)");
+                count += 1;
+            } else if value < prev {
+                // println!("(decreased)")
+            } else {
+                // println!("(no change)")
             }
         }
     }

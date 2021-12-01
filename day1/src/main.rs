@@ -11,54 +11,32 @@ fn main() {
         .map(|line| line.unwrap().parse::<i64>().unwrap())
         .collect();
 
-    println!("Answer for part 1 is {}", part1(&numbers));
-    println!("Answer for part 2 is {}", part2(&numbers));
+    assert_eq!(part1(&numbers), 1233);
+    assert_eq!(part2(&numbers), 1275);
 }
 
 fn part1(numbers: &Vec<i64>) -> i64 {
-    let mut count = 0;
-
-    for (i, v) in numbers.iter().enumerate() {
-        // print!("{} ", v);
-        if i == 0 {
-            // println!("(N/A - no previous measurement)")
+    return numbers.iter().enumerate().fold(0, |count, (i, v)| {
+        if i > 0 && v > &numbers[i - 1] {
+            count + 1
         } else {
-            if v > &numbers[i - 1] {
-                // println!("(increased)");
-                count += 1;
-            } else {
-                // println!("(decreased)")
-            }
+            count
         }
-    }
-
-    return count;
+    });
 }
 
 fn part2(numbers: &Vec<i64>) -> i64 {
-    let mut count = 0;
-
-    for (i, v) in numbers.iter().enumerate() {
-        if i == numbers.len() - 2 {
-            break;
-        }
-
-        let value = v + &numbers[i + 1] + &numbers[i + 2];
-        // print!("{} ", value);
-        if i == 0 {
-            // println!("(N/A - no previous sum)")
+    return numbers.iter().enumerate().fold(0, |count, (i, v)| {
+        if i == 0 || i >= numbers.len() - 2 {
+            count
         } else {
+            let value = v + &numbers[i + 1] + &numbers[i + 2];
             let prev = &numbers[i - 1] + v + &numbers[i + 1];
             if value > prev {
-                // println!("(increased)");
-                count += 1;
-            } else if value < prev {
-                // println!("(decreased)")
+                count + 1
             } else {
-                // println!("(no change)")
+                count
             }
         }
-    }
-
-    return count;
+    });
 }

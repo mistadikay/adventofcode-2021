@@ -1,18 +1,23 @@
-use std::fs::File;
-use std::io::BufRead;
-use std::io::BufReader;
+use crate::helpers::DayData;
 
-fn main() {
-    let file = File::open("input.txt").expect("file wasn't found.");
-    let reader = BufReader::new(file);
+pub fn run(part: &i32) -> String {
+    let input = parse_input();
+    let answer = match part {
+        2 => part2(&input).to_string(), // 1275
+        1 => part1(&input).to_string(), // 1233
+        _ => "".to_string(),
+    };
+    answer
+}
 
-    let numbers: Vec<i64> = reader
+fn parse_input() -> Vec<i64> {
+    DayData::from_file_path("./data/day_01/input.txt")
         .lines()
-        .map(|line| line.unwrap().parse::<i64>().unwrap())
-        .collect();
-
-    assert_eq!(part1(&numbers), 1233);
-    assert_eq!(part2(&numbers), 1275);
+        .map(|line| {
+            line.parse::<i64>()
+                .expect("All of the depths should have been numbers")
+        })
+        .collect()
 }
 
 fn part1(numbers: &Vec<i64>) -> i64 {

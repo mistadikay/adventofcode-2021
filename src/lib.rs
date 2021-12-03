@@ -1,4 +1,5 @@
 mod day_01;
+mod day_02;
 mod helpers;
 
 use std::env;
@@ -8,6 +9,7 @@ pub trait AdventDay {}
 pub fn run(config: Config) -> Result<String, &'static str> {
     let day = match config.day {
         1 => Ok(day_01::run(&config.part)),
+        2 => Ok(day_02::run(&config.part)),
         _ => Err("That day has not been done"),
     };
     day

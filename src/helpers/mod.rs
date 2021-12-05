@@ -1,4 +1,4 @@
-use std::fs::File;
+use std::fs::{read_to_string, File};
 use std::io::{BufRead, BufReader, Lines};
 
 pub struct DayData(String);
@@ -6,6 +6,11 @@ pub struct DayData(String);
 impl DayData {
     pub fn from_file_path(path: &str) -> DayData {
         DayData(path.to_string())
+    }
+
+    pub fn to_string(&self) -> String {
+        let f = read_to_string(&self.0).expect("input not found");
+        f
     }
 
     pub fn lines(&self) -> DayDataLineIterator {

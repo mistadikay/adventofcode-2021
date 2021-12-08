@@ -18,7 +18,7 @@ pub fn run(part: &i32) -> String {
     let input = parse_input();
     let answer = match part {
         1 => part1(&input).to_string(), // 54275
-        2 => part2(&input).to_string(), //
+        2 => part2(&input).to_string(), // 13158
         _ => "".to_string(),
     };
     answer

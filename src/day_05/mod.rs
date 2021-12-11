@@ -14,27 +14,12 @@ impl Line {
     }
 
     fn to_points(&self) -> Vec<Point> {
-        if self.start.x == self.end.x {
-            let x = self.start.x;
-            let (start, end) = match self.start.y > self.end.y {
-                true => (self.end.y, self.start.y),
-                false => (self.start.y, self.end.y),
-            };
-            return (start..end + 1)
-                .into_iter()
-                .map(|y| Point { x, y })
-                .collect();
-        }
+        let x = (self.start.x, self.end.x);
+        let y = (self.start.y, self.end.y);
+        let x_range = get_range(x, y);
+        let y_range = get_range(y, x);
 
-        let y = self.start.y;
-        let (start, end) = match self.start.x > self.end.x {
-            true => (self.end.x, self.start.x),
-            false => (self.start.x, self.end.x),
-        };
-        return (start..end + 1)
-            .into_iter()
-            .map(|x| Point { x, y })
-            .collect();
+        return x_range.zip(y_range).map(|(x, y)| Point { x, y }).collect();
     }
 }
 
@@ -85,10 +70,22 @@ pub fn run(part: &i32) -> String {
     );
     let answer = match part {
         1 => part1(input).to_string(), // 5608
-        2 => part2(input).to_string(), //
+        2 => part2(input).to_string(), // 20299
         _ => "".to_string(),
     };
     answer
+}
+
+fn get_range((a1, a2): (i32, i32), (b1, b2): (i32, i32)) -> Box<dyn Iterator<Item = i32>> {
+    if a2 > a1 {
+        return Box::new((a1..a2 + 1).into_iter());
+    }
+
+    if a1 > a2 {
+        return Box::new((a2..a1 + 1).rev());
+    }
+
+    return Box::new(vec![a1; (b1 - b2).abs() as usize + 1].into_iter());
 }
 
 fn parse_input(iter: Vec<String>) -> Vec<Line> {
@@ -100,8 +97,8 @@ fn parse_input(iter: Vec<String>) -> Vec<Line> {
 
 fn lines_to_points(lines: &Vec<Line>) -> Vec<Point> {
     let mut points: Vec<Point> = lines
+        .clone()
         .into_iter()
-        .filter(|line| line.is_straight_line())
         .map(|line| line.to_points())
         .flatten()
         .collect();
@@ -111,8 +108,8 @@ fn lines_to_points(lines: &Vec<Line>) -> Vec<Point> {
     return points;
 }
 
-fn part1(report: Vec<Line>) -> i32 {
-    let mut points = lines_to_points(&report).into_iter();
+fn count_intersections(input: &Vec<Point>) -> i32 {
+    let mut points = input.clone().into_iter();
     let mut prev_point: Point = points.next().unwrap();
     let mut is_prev_duplicate = false;
 
@@ -132,8 +129,20 @@ fn part1(report: Vec<Line>) -> i32 {
     });
 }
 
-fn part2(_report: Vec<Line>) -> i32 {
-    0
+fn part1(report: Vec<Line>) -> i32 {
+    let straight_lines = report
+        .into_iter()
+        .filter(|line| line.is_straight_line())
+        .collect();
+    let points = lines_to_points(&straight_lines);
+
+    return count_intersections(&points);
+}
+
+fn part2(report: Vec<Line>) -> i32 {
+    let points = lines_to_points(&report);
+
+    return count_intersections(&points);
 }
 
 #[cfg(test)]
@@ -160,14 +169,9 @@ mod tests {
     }
 
     #[test]
-    fn can_lines_to_points() {
-        let input = parse_input(
-            vec!["3,4 -> 1,4", "0,0 -> 8,8", "2,2 -> 2,1", "6,4 -> 2,0"]
-                .into_iter()
-                .map(|s| s.to_string())
-                .collect(),
-        );
-        let mut actual: Vec<Point> = lines_to_points(&input);
+    fn can_straight_lines_to_points() {
+        let input = parse_input(vec!["3,4 -> 1,4".to_string(), "2,2 -> 2,1".to_string()]);
+        let actual: Vec<Point> = lines_to_points(&input);
         let expected: Vec<Point> = vec![
             Point { x: 1, y: 4 },
             Point { x: 2, y: 1 },
@@ -176,7 +180,32 @@ mod tests {
             Point { x: 3, y: 4 },
         ];
 
-        actual.sort();
+        assert_eq!(actual, expected)
+    }
+
+    #[test]
+    fn can_any_lines_to_points() {
+        let input = parse_input(vec![
+            "3,4 -> 1,4".to_string(),
+            "1,1 -> 3,3".to_string(),
+            "9,7 -> 7,9".to_string(),
+            "2,2 -> 2,1".to_string(),
+        ]);
+        let actual: Vec<Point> = lines_to_points(&input);
+        let expected: Vec<Point> = vec![
+            Point { x: 1, y: 1 },
+            Point { x: 1, y: 4 },
+            Point { x: 2, y: 1 },
+            Point { x: 2, y: 2 },
+            Point { x: 2, y: 2 },
+            Point { x: 2, y: 4 },
+            Point { x: 3, y: 3 },
+            Point { x: 3, y: 4 },
+            Point { x: 7, y: 9 },
+            Point { x: 8, y: 8 },
+            Point { x: 9, y: 7 },
+        ];
+
         assert_eq!(actual, expected)
     }
 
@@ -201,5 +230,28 @@ mod tests {
         );
 
         assert_eq!(part1(input), 5)
+    }
+
+    #[test]
+    fn part2_simple() {
+        let input = parse_input(
+            vec![
+                "0,9 -> 5,9",
+                "8,0 -> 0,8",
+                "9,4 -> 3,4",
+                "2,2 -> 2,1",
+                "7,0 -> 7,4",
+                "6,4 -> 2,0",
+                "0,9 -> 2,9",
+                "3,4 -> 1,4",
+                "0,0 -> 8,8",
+                "5,5 -> 8,2",
+            ]
+            .into_iter()
+            .map(|s| s.to_string())
+            .collect(),
+        );
+
+        assert_eq!(part2(input), 12)
     }
 }

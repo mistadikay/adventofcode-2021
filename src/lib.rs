@@ -3,6 +3,7 @@ mod day_02;
 mod day_03;
 mod day_04;
 mod day_05;
+mod day_06;
 mod helpers;
 
 use std::env;
@@ -16,6 +17,7 @@ pub fn run(config: Config) -> Result<String, &'static str> {
         3 => Ok(day_03::run(&config.part)),
         4 => Ok(day_04::run(&config.part)),
         5 => Ok(day_05::run(&config.part)),
+        6 => Ok(day_06::run(&config.part)),
         _ => Err("That day has not been done"),
     };
     day
